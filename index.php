@@ -7,7 +7,6 @@ include("./php/conf.php");
 $msg = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Collect data from POST request
     if (isset($_POST['name']) && isset($_POST['message'])) {
         $name = trim($_POST['name']);
         $message = trim($_POST['message']);
@@ -16,20 +15,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         try {
             // Server settings
-            $mail->isSMTP();                                      // Send using SMTP
-            $mail->Host = 'smtp.gmail.com';                       // Set the SMTP server
-            $mail->SMTPAuth = true;                               // Enable SMTP authentication
-            $mail->Username = 'feeling2point0@gmail.com';             // SMTP username
-            $mail->Password = 'fgsrrusfeszmmqjs';                // SMTP password (use app password for Gmail)
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;   // Enable TLS encryption
-            $mail->Port = 587;                                    // TCP port to connect to
+            $mail->isSMTP();                                      
+            $mail->Host = 'smtp.gmail.com';                       
+            $mail->SMTPAuth = true;                               
+            $mail->Username = 'feeling2point0@gmail.com';             
+            $mail->Password = 'fgsrrusfeszmmqjs';                
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;  
+            $mail->Port = 587;                                   
 
             // Recipients
             $mail->setFrom('jahidulislamdiu02@gmail.com', 'Jahidul');
-            $mail->addAddress('jahidulislamdiu02@gmail.com', 'Jahidul'); // Add a recipient
+            $mail->addAddress('jahidulislamdiu02@gmail.com', 'Jahidul'); 
 
             // Content
-            $mail->isHTML(true);                                  // Set email format to HTML
+            $mail->isHTML(true);                                  
             $mail->Subject = $name. ' sent message';
             $mail->Body = $message;
             $mail->AltBody = $message;
