@@ -1,80 +1,12 @@
-<?php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-require 'vendor/autoload.php';
-
-include("./php/conf.php");
-$msg = "";
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Collect data from POST request
-    if (isset($_POST['name']) && isset($_POST['message'])) {
-        $name = trim($_POST['name']);
-        $message = trim($_POST['message']);
-
-        $mail = new PHPMailer(true);
-
-        try {
-            // Server settings
-            $mail->isSMTP();                                      // Send using SMTP
-            $mail->Host = 'smtp.gmail.com';                       // Set the SMTP server
-            $mail->SMTPAuth = true;                               // Enable SMTP authentication
-            $mail->Username = 'feeling2point0@gmail.com';             // SMTP username
-            $mail->Password = 'fgsrrusfeszmmqjs';                // SMTP password (use app password for Gmail)
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;   // Enable TLS encryption
-            $mail->Port = 587;                                    // TCP port to connect to
-
-            // Recipients
-            $mail->setFrom('jahidulislamdiu02@gmail.com', 'Jahidul');
-            $mail->addAddress('jahidulislamdiu02@gmail.com', 'Jahidul'); // Add a recipient
-
-            // Content
-            $mail->isHTML(true);                                  // Set email format to HTML
-            $mail->Subject = $name. ' sent message';
-            $mail->Body = $message;
-            $mail->AltBody = $message;
-
-            $mail->send();
-            $msg = 'Email has been sent successfully!';
-        } catch (Exception $e) {
-            $msg = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
-        }
-
-
-
-
-
-        $name = mysqli_real_escape_string($conn, $name);
-        $message = mysqli_real_escape_string($conn, $message);
-
-        // SQL query to insert data into `portfolio_data` table
-        $sql = "INSERT INTO portfolio_data (name, message) VALUES ('$name', '$message')";
-
-        // Execute the query
-        if (mysqli_query($conn, $sql)) {
-            $msg = "Message and email sent successfully!";
-        } else {
-            $msg = "Error: " . $sql . "<br>" . mysqli_error($conn);
-        }
-
-        // Close the database connection
-        mysqli_close($conn);
-    } else {
-        $msg = "Name or message field is missing!";
-    }
-}
-?> 
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal Portfolio</title>
     <link rel="stylesheet" href="style.css">
-
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -247,8 +179,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <section id="service" class="services" data-animate="slideIn">
         <div class="services-header">
             <h2 class="services-title">My <span>Service</span></h2>
-            <p class="services-description">"We provide professional app development for Android, iOS, and web platforms, ensuring seamless user experiences. Our web development expertise covers HTML, CSS, and JavaScript. Additionally, we specialize in solving coding challenges with efficient and creative solutions."
-</p>
+            <p class="services-description">"We provide professional app development for Android, iOS, and web
+                platforms, ensuring seamless user experiences. Our web development expertise covers HTML, CSS, and
+                JavaScript. Additionally, we specialize in solving coding challenges with efficient and creative
+                solutions."
+            </p>
         </div>
 
         <div class="services-grid">
@@ -337,11 +272,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             </div>
 
-            <form class="contact-form" method="post">
-                <p id="msg">
-                    <?php echo $msg; ?>
-                </p>
+            <form class="contact-form" method="post" id="contactForm">
+                <p id="msg"></p>
                 <input type="text" class="form-input" placeholder="Name" name="name" onclick="hide()" required>
+                <input type="email" class="form-input" placeholder="Email" name="email" onclick="hide()" required>
                 <textarea class="form-textarea" name="message" placeholder="Message" onclick="hide()"
                     required></textarea>
                 <button type="submit" class="cta-button">Contact us</button>
@@ -380,37 +314,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </svg>
         </div>
     </footer>
-
+    <script src="./js/main.js"></script>
     <script>
-        // Mobile menu toggle
-        const menuButton = document.querySelector('.menu-button');
-        const navLinks = document.querySelector('.nav-links');
-
-        menuButton.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-        });
-
-        // Smooth scroll for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                    // Close mobile menu if open
-                    navLinks.classList.remove('active');
-                }
+        $(document).ready(function () {
+            $('#contactForm').on('submit', function (event) {
+                event.preventDefault();
+                // Collect form data
+                const formData = {
+                    name: $('#name').val(),
+                    email: $('#email').val(),
+                    message: $('#message').val()
+                };
+                $('#msg').text('Submitting your message...').show();
+                // Example of AJAX request:
+                $.ajax({
+                    url: 'https://api.skipthegames.tech/get_contact',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        $('#msg').text(response.message).css('color', 'green');
+                        $('#contactForm')[0].reset();
+                    },
+                    error: function () {
+                        $('#msg').text('Something went wrong. Please try again.').css('color', 'red');
+                    }
+                });
             });
         });
-        function hide() {
-            document.getElementById("msg").style.display = "none";
-        }
-
-        // Navbar scroll effect
     </script>
-    <script src="./js/main.js"></script>
 </body>
 
 </html>
